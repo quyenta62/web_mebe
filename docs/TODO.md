@@ -105,9 +105,14 @@ Trạng thái: ✅ xong · ⏳ đang chờ xác nhận · ⬜ chưa làm
 
 - [ ] Crawl active groups theo interval cấu hình bằng env; service `scheduler`
 
-## Phase 2.7 — Crawl history ⬜
+## Phase 2.7 — Crawl history ✅ (2026-10-08, chờ xác nhận)
 
-- [ ] `/crawl-runs` + trang chi tiết lỗi
+- [x] `/crawl-runs`: Group, Started, Finished, Status, Posts found (/số yêu cầu), Posts created, Error (rút gọn
+      120 ký tự); mới nhất trước; 50/trang; giờ Việt Nam; group đã xoá vẫn hiện (nhãn "đã xoá")
+- [x] `/crawl-runs/{id}`: chi tiết (số bài yêu cầu, tạo/bắt đầu/kết thúc, thời gian chạy) + lỗi đầy đủ và mã lỗi
+- [x] Menu "Crawl Runs"; badge "Lỗi lần gần nhất" trên `/groups` và thông báo "Crawl thất bại" link tới chi tiết
+- [x] Log: lỗi crawl vẫn ghi `storage/logs/laravel.log` (từ Phase 2.4); trang này đọc từ bảng `crawl_runs`
+- [x] Tests: 13 test mới (147 tổng), 3 query mỗi trang danh sách; kiểm tra giao diện trên 12 run thật
 
 ## Phase 2.8 — Testing + cleanup ⬜
 

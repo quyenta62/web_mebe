@@ -66,7 +66,7 @@
                         @elseif ($run?->status === \App\Enums\CrawlRunStatus::Running)
                             <div><span class="badge text-bg-primary">Đang crawl</span></div>
                         @elseif ($run?->status === \App\Enums\CrawlRunStatus::Failed)
-                            <div><span class="badge text-bg-danger" title="{{ $run->error_message }}">Lỗi lần gần nhất</span></div>
+                            <div><a href="{{ route('crawl-runs.show', $run) }}" class="badge text-bg-danger text-decoration-none" title="{{ $run->error_message }}">Lỗi lần gần nhất</a></div>
                         @endif
                     </td>
                     <td class="text-end text-nowrap">

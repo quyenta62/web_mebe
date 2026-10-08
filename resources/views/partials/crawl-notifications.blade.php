@@ -15,6 +15,7 @@
             @if ($run->posts_created > 0)
                 <span class="text-secondary">(Đã lưu {{ $run->posts_created }} bài mới đọc được trước khi lỗi.)</span>
             @endif
+            <a href="{{ route('crawl-runs.show', $run) }}" class="alert-link ms-1">Chi tiết</a>
         </div>
     @endif
 @endforeach

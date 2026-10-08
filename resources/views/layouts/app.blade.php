@@ -24,8 +24,9 @@
                 <li class="nav-item">
                     <a class="nav-link @if (request()->routeIs('posts.*')) active fw-semibold @endif" href="{{ route('posts.index') }}">Posts</a>
                 </li>
-                {{-- Page from a later phase (2.7 Crawl Runs). --}}
-                <li class="nav-item"><span class="nav-link disabled" title="Phase 2.7">Crawl Runs</span></li>
+                <li class="nav-item">
+                    <a class="nav-link @if (request()->routeIs('crawl-runs.*')) active fw-semibold @endif" href="{{ route('crawl-runs.index') }}">Crawl Runs</a>
+                </li>
             </ul>
             <form method="POST" action="{{ route('logout') }}" class="d-flex align-items-center gap-2">
                 @csrf

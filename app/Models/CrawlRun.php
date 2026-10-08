@@ -40,6 +40,26 @@ class CrawlRun extends Model
         ];
     }
 
+    /** Seconds between start and finish, or null while unfinished. */
+    public function durationSeconds(): ?int
+    {
+        if ($this->started_at === null || $this->finished_at === null) {
+            return null;
+        }
+
+        return (int) $this->started_at->diffInSeconds($this->finished_at, true);
+    }
+
+    /** The error code before the first colon, e.g. "LOGIN_REQUIRED". */
+    public function errorCode(): ?string
+    {
+        if ($this->error_message === null || ! str_contains($this->error_message, ':')) {
+            return null;
+        }
+
+        return strstr($this->error_message, ':', true);
+    }
+
     /**
      * Includes soft-deleted groups so history still shows the group name.
      *

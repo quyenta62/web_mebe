@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CrawlRunController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
@@ -19,4 +20,7 @@ Route::middleware('admin')->group(function () {
     Route::post('/groups/{group}/crawl', [GroupController::class, 'crawl'])->name('groups.crawl');
 
     Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+
+    Route::get('/crawl-runs', [CrawlRunController::class, 'index'])->name('crawl-runs.index');
+    Route::get('/crawl-runs/{crawlRun}', [CrawlRunController::class, 'show'])->name('crawl-runs.show');
 });

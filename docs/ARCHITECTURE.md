@@ -108,6 +108,13 @@ Cấu hình (`config/crawler.php`, `.env`): `CRAWLER_PATH`, `CRAWLER_NODE_BINARY
 Laravel không đọc file session Facebook; chỉ crawler đọc nó. Session tạo bằng `npm run login` trong
 `crawler_mebe` trên máy host (cần cửa sổ browser).
 
+### Crawl history (Phase 2.7)
+
+| Route | Việc |
+| --- | --- |
+| `GET /crawl-runs` | Danh sách run (50/trang, mới nhất trước, eager-load group) |
+| `GET /crawl-runs/{id}` | Chi tiết một run, lỗi đầy đủ (`CrawlRun::errorCode()`, `durationSeconds()`) |
+
 ## Queue (Phase 2.5)
 
 ```text
