@@ -1,0 +1,62 @@
+# Local development environment (Phase 2). Ports are bound to 127.0.0.1 only.
+name: crawler-mebe
+
+services:
+  app:
+    build: docker/php
+    image: crawler-mebe-app
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    environment:
+      HOME: /tmp
+      COMPOSER_HOME: /tmp/composer
+    working_dir: /var/www/web
+    volumes:
+      - .:/var/www/web
+      # Phase 1 crawler, including its Facebook session file (storage/, gitignored there).
+      - ../crawler_mebe:/var/www/crawler
+    command: php artisan serve --host=0.0.0.0 --port=8000
+    ports:
+      - "127.0.0.1:8090:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # Runs crawl jobs (one browser at a time, see CRAWLER_MAX_CONCURRENT).
+  # Restart it after code changes: docker compose restart queue
+  queue:
+    build: docker/php
+    image: crawler-mebe-app
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    environment:
+      HOME: /tmp
+    working_dir: /var/www/web
+    volumes:
+      - .:/var/www/web
+      - ../crawler_mebe:/var/www/crawler
+    command: php artisan queue:work --queue=crawler,default --sleep=3 --max-time=3600
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: crawler_mebe
+      MYSQL_USER: crawler
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:-crawler_dev_password}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-root_dev_password}"
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_as_ci"]
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-ucrawler", "-p${MYSQL_PASSWORD:-crawler_dev_password}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  mysql-data:
