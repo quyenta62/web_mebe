@@ -18,7 +18,7 @@
     <h1 class="h4 mb-0">Facebook Groups</h1>
     <div class="d-flex gap-2 align-items-start">
         @if ($activeCount > 0)
-            @include('groups._crawl-picker', ['action' => route('groups.crawl-all'), 'label' => "Crawl all ({$activeCount} group active)", 'floating' => true])
+            @include('groups._crawl-picker', ['action' => route('groups.crawl-all'), 'label' => "Lấy dữ liệu mới", 'floating' => true])
         @else
             <button type="button" class="btn btn-sm btn-primary" disabled title="Không có group active">Crawl all</button>
         @endif
