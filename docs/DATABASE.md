@@ -2,26 +2,20 @@
 
 MySQL 8.4, InnoDB, charset `utf8mb4`, collation mặc định `utf8mb4_0900_as_ci`.
 
-## Môi trường (từ 2026-10-08)
+## Môi trường
 
 | Dùng cho | Server | Database |
 | --- | --- | --- |
-| App + queue (dữ liệu thật) | Aiven MySQL 8.4 (managed), TLS bắt buộc | `crawler_mebe` |
-| PHPUnit | MySQL 8.4 trong Docker (`mysql`, 127.0.0.1:3307) | `crawler_mebe_test` |
+| App + queue | MySQL 8.4 trong Docker (service `mysql`, 127.0.0.1:3307) | `crawler_mebe` |
+| PHPUnit | cùng server | `crawler_mebe_test` |
 
-- Kết nối Aiven cấu hình trong `.env` (`DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`) và
-  `MYSQL_ATTR_SSL_CA` = đường dẫn CA của project Aiven (đang để ở `storage/app/private/aiven-ca.pem`,
-  gitignored; tải lại ở Aiven Console → service → CA certificate). Có CA thì Laravel bật luôn
-  `MYSQL_ATTR_SSL_VERIFY_SERVER_CERT` (`config/database.php`).
-- Aiven bật `sql_require_primary_key` (mọi bảng của project đều có primary key) và `sql_mode` mặc định có
-  `ANSI_QUOTES`; Laravel tự đặt lại `sql_mode` cho mỗi kết nối (`strict => true`), không cần đổi gì.
 - `phpunit.xml` ghim `DB_HOST=mysql` / `DB_DATABASE=crawler_mebe_test`; `tests/TestCase.php` từ chối chạy
   nếu kết nối khác (RefreshDatabase xoá mọi bảng).
-- Database `crawler_mebe` trong Docker local là bản dữ liệu cũ (trước khi chuyển), không còn được app dùng.
-- Độ trễ Aiven ~50 ms/truy vấn + ~0,3 s mở kết nối TLS: mỗi trang ~0,7–1,1 s.
-- Sessions, cache (khoá crawl) và queue jobs cũng nằm trên Aiven, nên nhiều máy dùng chung database vẫn
-  chia sẻ khoá chống crawl trùng.
-Migrations nằm ở `database/migrations/` (trong project `web_mebe`).
+- Hỗ trợ MySQL managed qua TLS vẫn còn trong code: đặt `MYSQL_ATTR_SSL_CA` = đường dẫn CA thì Laravel bật
+  kiểm tra chứng chỉ server (`config/database.php`).
+- Lịch sử: 2026-10-08 app chạy trên Aiven MySQL vài giờ rồi quay lại MySQL local theo yêu cầu. Trước khi đổi
+  lại đã so checksum từng bảng: dữ liệu hai bên giống hệt, không cần copy. Database `crawler_mebe` trên Aiven
+  không còn được dùng (có thể xoá service trên Aiven Console).
 
 ## Collation và tìm kiếm tiếng Việt
 

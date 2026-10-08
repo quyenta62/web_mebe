@@ -15,6 +15,8 @@ services:
       # Phase 1 crawler, including its Facebook session file (storage/, gitignored there).
       - ../crawler_mebe:/var/www/crawler
     command: php artisan serve --host=0.0.0.0 --port=8000
+    # Come back up after a reboot (this machine is used as a server).
+    restart: unless-stopped
     ports:
       - "127.0.0.1:8090:8000"
     depends_on:
@@ -41,6 +43,7 @@ services:
 
   mysql:
     image: mysql:8.4
+    restart: unless-stopped
     environment:
       MYSQL_DATABASE: crawler_mebe
       MYSQL_USER: crawler

@@ -109,8 +109,8 @@ Trạng thái: ✅ xong · ⏳ đang chờ xác nhận · ⬜ chưa làm
       sessions/cache/jobs; đối chiếu số dòng + checksum CRC32 từng bảng: giống hệt (2 / 278 / 12 / 9)
 - [x] `.env` trỏ Aiven + `MYSQL_ATTR_SSL_CA`; `config/database.php` bật kiểm tra chứng chỉ khi có CA
 - [x] Tests ghim vào MySQL Docker local (`phpunit.xml`) + chốt chặn trong `tests/TestCase.php`
-- [ ] Đổi mật khẩu `avnadmin` trên Aiven (mật khẩu đã lộ trong ảnh chụp màn hình) rồi cập nhật `DB_PASSWORD`
-- [ ] Tuỳ chọn tăng tốc: `SESSION_DRIVER=file` (bớt 2 truy vấn/request); chưa làm
+- [x] **Quay lại MySQL local** (cùng ngày, theo yêu cầu): checksum từng bảng Aiven = local, chỉ đổi `.env`
+- [ ] Xoá service MySQL trên Aiven Console (hoặc ít nhất đổi mật khẩu `avnadmin`, đã lộ trong ảnh chụp màn hình)
 
 ## Bỏ đăng nhập ✅ (2026-10-08)
 
@@ -118,6 +118,17 @@ Trạng thái: ✅ xong · ⏳ đang chờ xác nhận · ⬜ chưa làm
 - [x] Giữ CSRF (POST không token → 419); test `AccessTest`: trang mở không cần đăng nhập, `/login` 404,
       form có `_token`, port Docker chỉ mở trên `127.0.0.1`
 - [ ] Nếu sau này deploy lên server / mở ra mạng: phải thêm lại đăng nhập
+
+## Dùng máy này làm máy chủ (Tailscale) ✅ (2026-10-08)
+
+- [x] Tailscale 1.104.1 cài lên hệ thống (người dùng chạy lệnh sudo), `tailscaled` tự chạy khi khởi động,
+      hostname `fb-monitor`, operator `quyen`, bật Tailscale SSH
+- [x] `tailscale serve --bg 8090` → `https://fb-monitor.<tailnet>.ts.net` (chỉ trong tailnet; chứng chỉ Let's Encrypt,
+      Tailscale tự gia hạn); bản HTTP port 80 đã tắt
+- [x] Laravel `trustProxies('*')` (an toàn vì port chỉ mở trên 127.0.0.1) + `ReverseProxyTest`
+- [x] `restart: unless-stopped` cho `app` và `mysql` (trước chỉ có `queue`)
+- [x] Giao diện điện thoại: bảng thành thẻ (`table-stack`), menu rút gọn, `MobileLayoutTest`
+- [x] Bật HTTPS cho tailnet (người dùng bật trong Admin console); tên máy có trong nhật ký chứng chỉ công khai
 
 ## Phase 2.6 — Scheduler ⏸ (hoãn theo yêu cầu 2026-10-08)
 

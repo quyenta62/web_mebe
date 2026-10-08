@@ -11,7 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // The app is only published on 127.0.0.1, so every client is a local process, e.g.
+        // `tailscale serve` terminating HTTPS. Trust its X-Forwarded-* headers so generated
+        // URLs and redirects keep the https://<machine>.<tailnet>.ts.net address.
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
