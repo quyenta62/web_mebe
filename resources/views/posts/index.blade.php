@@ -24,10 +24,16 @@
 <form method="GET" action="{{ route('posts.index') }}" class="card card-body mb-3">
     <div class="row g-2 align-items-end">
         <div class="col-md-4">
-            <label for="keyword" class="form-label">Keyword</label>
+            @php $keywordHelp = 'Phân cách bằng dấu phẩy; khớp BẤT KỲ keyword nào. Không phân biệt hoa thường, có phân biệt dấu.'; @endphp
+            <label for="keyword" class="form-label">
+                Keyword
+                {{-- Native browser tooltip: no JavaScript needed. --}}
+                <span class="text-secondary" style="cursor: help" title="{{ $keywordHelp }}" aria-hidden="true">ⓘ</span>
+            </label>
             <input id="keyword" name="keyword" type="text" maxlength="500" value="{{ is_string($filters['keyword'] ?? null) ? $filters['keyword'] : '' }}"
-                   placeholder="pass, bán, xe đẩy" class="form-control @if ($filterErrors->has('keyword')) is-invalid @endif">
-            <div class="form-text">Phân cách bằng dấu phẩy; khớp <strong>bất kỳ</strong> keyword nào. Không phân biệt hoa thường, có phân biệt dấu.</div>
+                   placeholder="pass, bán, xe đẩy" title="{{ $keywordHelp }}" aria-describedby="keyword-help"
+                   class="form-control @if ($filterErrors->has('keyword')) is-invalid @endif">
+            <span id="keyword-help" class="visually-hidden">{{ $keywordHelp }}</span>
         </div>
         <div class="col-md-3">
             <label for="group" class="form-label">Group</label>
