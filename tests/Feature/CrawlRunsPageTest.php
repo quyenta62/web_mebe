@@ -8,12 +8,10 @@ use App\Models\FacebookGroup;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
-use Tests\Concerns\ActsAsAdmin;
 use Tests\TestCase;
 
 class CrawlRunsPageTest extends TestCase
 {
-    use ActsAsAdmin;
     use RefreshDatabase;
 
     private FacebookGroup $group;
@@ -22,15 +20,6 @@ class CrawlRunsPageTest extends TestCase
     {
         parent::setUp();
         $this->group = FacebookGroup::factory()->create(['name' => 'Hội mẹ bỉm', 'facebook_group_id' => '123456789']);
-    }
-
-    public function test_guests_cannot_see_crawl_runs(): void
-    {
-        $this->configureAdmin();
-        $run = CrawlRun::factory()->for($this->group, 'group')->create();
-
-        $this->get('/crawl-runs')->assertRedirect('/login');
-        $this->get("/crawl-runs/{$run->id}")->assertRedirect('/login');
     }
 
     public function test_lists_runs_newest_first_with_all_columns(): void
@@ -44,7 +33,7 @@ class CrawlRunsPageTest extends TestCase
         $new = CrawlRun::factory()->for($this->group, 'group')->failed('LOGIN_REQUIRED: Facebook session is expired')->create();
         CrawlRun::factory()->for($this->group, 'group')->create(['status' => CrawlRunStatus::Running, 'started_at' => now()]);
 
-        $response = $this->actingAsAdmin()->get('/crawl-runs')->assertOk();
+        $response = $this->get('/crawl-runs')->assertOk();
 
         $response->assertSeeInOrder(['Group', 'Started', 'Finished', 'Status', 'Posts found', 'Posts created', 'Error'])
             ->assertSeeInOrder(['Running', "#{$new->id}", 'Failed', 'LOGIN_REQUIRED: Facebook session is expired', "#{$old->id}", 'Success'])
@@ -59,7 +48,7 @@ class CrawlRunsPageTest extends TestCase
     {
         $run = CrawlRun::factory()->for($this->group, 'group')->failed('CRAWLER_ERROR: '.str_repeat('x', 300).'END-OF-ERROR')->create();
 
-        $this->actingAsAdmin()->get('/crawl-runs')
+        $this->get('/crawl-runs')
             ->assertOk()
             ->assertDontSee('END-OF-ERROR')
             ->assertSee(route('crawl-runs.show', $run), false);
@@ -69,13 +58,13 @@ class CrawlRunsPageTest extends TestCase
     {
         CrawlRun::factory()->count(51)->for($this->group, 'group')->create();
 
-        $this->actingAsAdmin()->get('/crawl-runs')->assertSee('Hiển thị 1–50 / 51 crawl runs');
+        $this->get('/crawl-runs')->assertSee('Hiển thị 1–50 / 51 crawl runs');
         $this->get('/crawl-runs?page=2')->assertSee('Hiển thị 51–51 / 51 crawl runs');
     }
 
     public function test_empty_state(): void
     {
-        $this->actingAsAdmin()->get('/crawl-runs')->assertOk()->assertSee('Chưa có lần crawl nào.');
+        $this->get('/crawl-runs')->assertOk()->assertSee('Chưa có lần crawl nào.');
     }
 
     public function test_detail_shows_the_full_error_and_run_data(): void
@@ -90,7 +79,7 @@ class CrawlRunsPageTest extends TestCase
             'finished_at' => '2026-10-08 01:01:30',
         ]);
 
-        $this->actingAsAdmin()->get("/crawl-runs/{$run->id}")
+        $this->get("/crawl-runs/{$run->id}")
             ->assertOk()
             ->assertSee("Crawl run #{$run->id}")
             ->assertSee('Failed')
@@ -107,12 +96,12 @@ class CrawlRunsPageTest extends TestCase
     {
         $run = CrawlRun::factory()->for($this->group, 'group')->succeeded()->create();
 
-        $this->actingAsAdmin()->get("/crawl-runs/{$run->id}")->assertOk()->assertSee('Success')->assertDontSee('border-danger', false);
+        $this->get("/crawl-runs/{$run->id}")->assertOk()->assertSee('Success')->assertDontSee('border-danger', false);
     }
 
     public function test_unknown_run_is_not_found(): void
     {
-        $this->actingAsAdmin()->get('/crawl-runs/999999')->assertNotFound();
+        $this->get('/crawl-runs/999999')->assertNotFound();
     }
 
     public function test_runs_of_deleted_groups_are_kept(): void
@@ -120,7 +109,7 @@ class CrawlRunsPageTest extends TestCase
         $run = CrawlRun::factory()->for($this->group, 'group')->succeeded()->create();
         $this->group->delete();
 
-        $this->actingAsAdmin()->get('/crawl-runs')->assertOk()->assertSee('Hội mẹ bỉm')->assertSee('đã xoá');
+        $this->get('/crawl-runs')->assertOk()->assertSee('Hội mẹ bỉm')->assertSee('đã xoá');
         $this->get("/crawl-runs/{$run->id}")->assertOk()->assertSee('đã xoá');
     }
 
@@ -128,14 +117,14 @@ class CrawlRunsPageTest extends TestCase
     {
         $run = CrawlRun::factory()->for($this->group, 'group')->failed('CRAWLER_ERROR: <script>alert(1)</script>')->create();
 
-        $this->actingAsAdmin()->get('/crawl-runs')->assertDontSee('<script>alert(1)</script>', false);
+        $this->get('/crawl-runs')->assertDontSee('<script>alert(1)</script>', false);
         $this->get("/crawl-runs/{$run->id}")->assertDontSee('<script>alert(1)</script>', false)->assertSee('&lt;script&gt;', false);
     }
 
     public function test_failed_badge_on_groups_and_failure_notice_link_to_the_detail(): void
     {
         Queue::fake();
-        $this->actingAsAdmin()->post("/groups/{$this->group->id}/crawl", ['max_posts' => 20]);
+        $this->post("/groups/{$this->group->id}/crawl", ['max_posts' => 20]);
         $run = CrawlRun::sole();
         $run->update(['status' => CrawlRunStatus::Failed, 'error_message' => 'LOGIN_REQUIRED: expired', 'finished_at' => now()]);
 
@@ -150,8 +139,6 @@ class CrawlRunsPageTest extends TestCase
         foreach (FacebookGroup::factory()->count(5)->create() as $group) {
             CrawlRun::factory()->count(5)->for($group, 'group')->succeeded()->create();
         }
-
-        $this->actingAsAdmin();
         DB::flushQueryLog();
         DB::enableQueryLog();
         $this->get('/crawl-runs')->assertOk();
@@ -162,6 +149,6 @@ class CrawlRunsPageTest extends TestCase
 
     public function test_navigation_links_to_crawl_runs(): void
     {
-        $this->actingAsAdmin()->get('/groups')->assertSee('href="'.route('crawl-runs.index').'"', false);
+        $this->get('/groups')->assertSee('href="'.route('crawl-runs.index').'"', false);
     }
 }

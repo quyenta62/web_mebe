@@ -23,11 +23,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Crawl progress / completion notices on every page of the admin layout.
+        // Crawl progress / completion notices on every page of the layout.
         View::composer('layouts.app', function ($view) {
-            $session = request()->hasSession() ? request()->session() : null;
-            $runs = $session && $session->has('admin_username')
-                ? CrawlNotifications::pull($session)
+            $runs = request()->hasSession()
+                ? CrawlNotifications::pull(request()->session())
                 : ['finished' => collect(), 'running' => collect()];
             $view->with(['crawlFinished' => $runs['finished'], 'crawlRunning' => $runs['running']]);
         });

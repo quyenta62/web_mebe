@@ -112,6 +112,13 @@ Trạng thái: ✅ xong · ⏳ đang chờ xác nhận · ⬜ chưa làm
 - [ ] Đổi mật khẩu `avnadmin` trên Aiven (mật khẩu đã lộ trong ảnh chụp màn hình) rồi cập nhật `DB_PASSWORD`
 - [ ] Tuỳ chọn tăng tốc: `SESSION_DRIVER=file` (bớt 2 truy vấn/request); chưa làm
 
+## Bỏ đăng nhập ✅ (2026-10-08)
+
+- [x] Gỡ `AuthController`, `EnsureAdmin`, `AdminCredentials`, trang `/login`, nút Đăng xuất, `ADMIN_USERNAME` / `ADMIN_PASSWORD`
+- [x] Giữ CSRF (POST không token → 419); test `AccessTest`: trang mở không cần đăng nhập, `/login` 404,
+      form có `_token`, port Docker chỉ mở trên `127.0.0.1`
+- [ ] Nếu sau này deploy lên server / mở ra mạng: phải thêm lại đăng nhập
+
 ## Phase 2.6 — Scheduler ⏸ (hoãn theo yêu cầu 2026-10-08)
 
 - [ ] Crawl active groups theo interval cấu hình bằng env; service `scheduler`
@@ -133,11 +140,12 @@ Trạng thái: ✅ xong · ⏳ đang chờ xác nhận · ⬜ chưa làm
 ## Quyết định đã chốt (2026-10-07)
 
 1. **Tìm kiếm phân biệt dấu**: giữ, "bán" không khớp "ban"/"bạn".
-2. **Đăng nhập**: một tài khoản admin khai báo trong `.env` (`ADMIN_USERNAME`, `ADMIN_PASSWORD`).
+2. **Đăng nhập**: ~~một tài khoản admin khai báo trong `.env`~~ → **bỏ đăng nhập** (2026-10-08): tool một người dùng,
+   chỉ mở trên `127.0.0.1`; CSRF vẫn giữ.
 3. **Xoá group**: không xoá posts và lịch sử crawl (soft delete).
 
 ## Ghi chú vận hành
 
 - Queue worker nạp code một lần: sau khi sửa code, chạy `docker compose restart queue`.
-- `php artisan serve` đọc lại `.env` và bỏ qua biến môi trường cùng tên đặt từ bên ngoài, nên tài khoản admin
-  phải được khai báo trong `.env` (không truyền bằng `-e` khi dùng `artisan serve`).
+- `php artisan serve` đọc lại `.env` và bỏ qua biến môi trường cùng tên đặt từ bên ngoài: cấu hình phải nằm
+  trong `.env` (không truyền bằng `-e` khi dùng `artisan serve`).

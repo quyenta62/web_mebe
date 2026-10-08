@@ -7,12 +7,10 @@ use App\Models\FacebookPost;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Tests\Concerns\ActsAsAdmin;
 use Tests\TestCase;
 
 class PostsPageTest extends TestCase
 {
-    use ActsAsAdmin;
     use RefreshDatabase;
 
     private FacebookGroup $group;
@@ -31,15 +29,9 @@ class PostsPageTest extends TestCase
     /** Contents of the posts listed for the given query, in page order. */
     private function search(array $query): array
     {
-        $response = $this->actingAsAdmin()->get(route('posts.index', $query))->assertOk();
+        $response = $this->get(route('posts.index', $query))->assertOk();
 
         return $response->viewData('posts')->pluck('content')->all();
-    }
-
-    public function test_guests_cannot_see_posts(): void
-    {
-        $this->configureAdmin();
-        $this->get('/posts')->assertRedirect('/login');
     }
 
     public function test_listing_shows_group_author_content_time_and_facebook_link(): void
@@ -50,7 +42,7 @@ class PostsPageTest extends TestCase
             'post_url' => 'https://www.facebook.com/groups/1/posts/2/',
         ]);
 
-        $this->actingAsAdmin()->get('/posts')
+        $this->get('/posts')
             ->assertOk()
             ->assertSee('Hội mẹ bỉm')
             ->assertSee('Nguyễn Văn A')
@@ -63,7 +55,7 @@ class PostsPageTest extends TestCase
 
     public function test_empty_state(): void
     {
-        $this->actingAsAdmin()->get('/posts')->assertOk()->assertSee('Không có bài viết nào phù hợp.')->assertSee('0 posts');
+        $this->get('/posts')->assertOk()->assertSee('Không có bài viết nào phù hợp.')->assertSee('0 posts');
     }
 
     public function test_newest_posts_come_first(): void
@@ -80,7 +72,7 @@ class PostsPageTest extends TestCase
         FacebookPost::factory()->count(51)->for($this->group, 'group')->create(['content' => 'pass đồ']);
         FacebookPost::factory()->count(3)->for($this->group, 'group')->create(['content' => 'khác']);
 
-        $page1 = $this->actingAsAdmin()->get('/posts?keyword=pass')->assertOk();
+        $page1 = $this->get('/posts?keyword=pass')->assertOk();
         $page1->assertSee('Hiển thị 1–50 / 51 posts');
         $this->assertCount(50, $page1->viewData('posts'));
         $page1->assertSee('keyword=pass&amp;page=2', false);
@@ -120,7 +112,7 @@ class PostsPageTest extends TestCase
     {
         $this->createPost('một bài', ['posted_at' => '2026-10-05 00:00:00']);
 
-        $this->actingAsAdmin()->get('/posts?date_from=07/10/2026&group=abc')
+        $this->get('/posts?date_from=07/10/2026&group=abc')
             ->assertOk()
             ->assertSee('Từ ngày không hợp lệ')
             ->assertSee('Hiển thị 1–1 / 1 posts');
@@ -199,7 +191,7 @@ class PostsPageTest extends TestCase
         $this->createPost('x21y');
         $keywords = implode(',', array_map(fn ($i) => "x{$i}y", range(1, 21)));
 
-        $response = $this->actingAsAdmin()->get(route('posts.index', ['keyword' => $keywords]))->assertOk();
+        $response = $this->get(route('posts.index', ['keyword' => $keywords]))->assertOk();
 
         $response->assertSee('Chỉ dùng 20 keyword đầu tiên.');
         $this->assertCount(0, $response->viewData('posts'));
@@ -210,7 +202,7 @@ class PostsPageTest extends TestCase
         $this->createPost('bài cũ');
         $this->group->delete();
 
-        $this->actingAsAdmin()->get('/posts')->assertOk()->assertSee('bài cũ')->assertSee('đã xoá');
+        $this->get('/posts')->assertOk()->assertSee('bài cũ')->assertSee('đã xoá');
         $this->assertSame(['bài cũ'], $this->search(['group' => $this->group->id]));
     }
 
@@ -220,7 +212,7 @@ class PostsPageTest extends TestCase
             'author_name' => '<b>tác giả</b>',
         ]);
 
-        $this->actingAsAdmin()->get('/posts')
+        $this->get('/posts')
             ->assertOk()
             ->assertDontSee('<script>alert("xss")</script>', false)
             ->assertDontSee('<img src=x', false)
@@ -234,8 +226,6 @@ class PostsPageTest extends TestCase
         foreach ($groups as $group) {
             FacebookPost::factory()->count(10)->for($group, 'group')->create();
         }
-
-        $this->actingAsAdmin();
         DB::flushQueryLog();
         DB::enableQueryLog();
         $this->get('/posts?keyword=a,b&date_from=2026-01-01')->assertOk();
@@ -250,7 +240,7 @@ class PostsPageTest extends TestCase
         $this->createPost('Pass lô đồ sơ sinh', ['image_urls' => $urls, 'post_url' => 'https://www.facebook.com/groups/1/posts/9/']);
         $this->createPost('Bài chỉ có chữ', ['image_urls' => null]);
 
-        $response = $this->actingAsAdmin()->get('/posts')->assertOk();
+        $response = $this->get('/posts')->assertOk();
 
         $response->assertSeeInOrder(['Pass lô đồ sơ sinh', 'src="https://scontent.x.fbcdn.net/v/1.jpg?oh=a&amp;oe=b"'], false)
             ->assertSee('referrerpolicy="no-referrer"', false)
@@ -265,6 +255,6 @@ class PostsPageTest extends TestCase
     {
         $this->createPost(str_repeat('a', 600).'PHẦN-SAU');
 
-        $this->actingAsAdmin()->get('/posts')->assertOk()->assertSee('Xem thêm')->assertSee('PHẦN-SAU');
+        $this->get('/posts')->assertOk()->assertSee('Xem thêm')->assertSee('PHẦN-SAU');
     }
 }

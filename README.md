@@ -26,17 +26,11 @@ Nếu `.env` chưa có: `cp .env.example .env`, điền `DB_PASSWORD`, rồi
 App dùng MySQL trên Aiven (cấu hình trong `.env`, kết nối TLS có kiểm tra CA qua `MYSQL_ATTR_SSL_CA`).
 MySQL trong Docker chỉ dùng cho tests. Chi tiết: [docs/DATABASE.md](docs/DATABASE.md).
 
-## Đăng nhập
+## Truy cập
 
-Điền tài khoản admin trong `.env` rồi mở http://localhost:8090:
-
-```dotenv
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=mat-khau-manh
-```
-
-Khi một trong hai biến còn rỗng, trang đăng nhập báo "Chưa cấu hình tài khoản" và không ai đăng nhập
-được. Sai mật khẩu 5 lần trong 1 phút thì bị khoá tạm 60 giây.
+Tool dành cho một người dùng, **không có đăng nhập**: mở http://localhost:8090 là dùng được. Điều này chỉ an
+toàn vì `docker-compose.yml` mở port trên `127.0.0.1` (chỉ máy này truy cập được; test `AccessTest` kiểm tra).
+Không mở port ra mạng ngoài hay deploy lên server khi chưa thêm lại đăng nhập. Các form vẫn có CSRF token.
 
 ## Tài liệu
 

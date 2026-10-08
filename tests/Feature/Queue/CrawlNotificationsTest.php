@@ -8,12 +8,10 @@ use App\Models\FacebookGroup;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Tests\Concerns\ActsAsAdmin;
 use Tests\TestCase;
 
 class CrawlNotificationsTest extends TestCase
 {
-    use ActsAsAdmin;
     use RefreshDatabase;
 
     private FacebookGroup $group;
@@ -27,14 +25,14 @@ class CrawlNotificationsTest extends TestCase
 
     private function startCrawl(int $posts = 100): CrawlRun
     {
-        $this->actingAsAdmin()->post("/groups/{$this->group->id}/crawl", ['max_posts' => $posts])->assertRedirect('/groups');
+        $this->post("/groups/{$this->group->id}/crawl", ['max_posts' => $posts])->assertRedirect('/groups');
 
         return CrawlRun::latest('id')->first();
     }
 
     public function test_crawl_menu_offers_post_counts(): void
     {
-        $this->actingAsAdmin()->get('/groups')
+        $this->get('/groups')
             ->assertOk()
             ->assertSee('Crawl ▾')
             ->assertSee('Số bài mới nhất cần lấy')
@@ -53,7 +51,7 @@ class CrawlNotificationsTest extends TestCase
     #[DataProvider('invalidCounts')]
     public function test_invalid_post_counts_are_rejected(mixed $count): void
     {
-        $this->actingAsAdmin()->from('/groups')
+        $this->from('/groups')
             ->post("/groups/{$this->group->id}/crawl", $count === null ? [] : ['max_posts' => $count])
             ->assertRedirect('/groups')
             ->assertSessionHasErrors('max_posts');
@@ -110,6 +108,6 @@ class CrawlNotificationsTest extends TestCase
     {
         CrawlRun::factory()->for($this->group, 'group')->succeeded()->create();
 
-        $this->actingAsAdmin()->get('/groups')->assertDontSee('Crawl xong');
+        $this->get('/groups')->assertDontSee('Crawl xong');
     }
 }

@@ -30,12 +30,12 @@ Browser → Laravel Blade → Controller → Eloquent → MySQL
 
 Không có REST API riêng, không SPA. Browser không bao giờ gọi crawler trực tiếp.
 
-### Đăng nhập
+### Truy cập (không đăng nhập, từ 2026-10-08)
 
-Một tài khoản admin duy nhất, khai báo trong `.env` (`ADMIN_USERNAME`, `ADMIN_PASSWORD`), không lưu DB.
-`AuthController` so sánh bằng `hash_equals`, giới hạn 5 lần sai/phút/IP, regenerate session khi đăng nhập.
-Middleware `admin` (`App\Http\Middleware\EnsureAdmin`) bảo vệ mọi route trừ `/login`. Khi một trong hai
-biến rỗng thì không ai đăng nhập được.
+Tool một người dùng, chạy local: không có đăng nhập, mọi route mở trực tiếp. An toàn dựa vào việc port chỉ
+mở trên `127.0.0.1` (`docker-compose.yml`, có test `tests/Feature/AccessTest.php`). CSRF của middleware group
+`web` vẫn bảo vệ mọi form (POST không có token → HTTP 419), để trang web lạ không gửi được lệnh crawl/xoá
+qua trình duyệt. Trước đây (Phase 2.2) dùng tài khoản admin trong `.env`; đã gỡ theo yêu cầu.
 
 ### Groups (Phase 2.2)
 

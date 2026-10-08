@@ -8,12 +8,10 @@ use App\Models\CrawlRun;
 use App\Models\FacebookGroup;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
-use Tests\Concerns\ActsAsAdmin;
 use Tests\TestCase;
 
 class CrawlAllButtonTest extends TestCase
 {
-    use ActsAsAdmin;
     use RefreshDatabase;
 
     protected function setUp(): void
@@ -27,7 +25,7 @@ class CrawlAllButtonTest extends TestCase
         FacebookGroup::factory()->count(2)->create();
         FacebookGroup::factory()->inactive()->create();
 
-        $this->actingAsAdmin()->get('/groups')
+        $this->get('/groups')
             ->assertOk()
             ->assertSee('Crawl all (2 group active)')
             ->assertSee('action="'.route('groups.crawl-all').'"', false);
@@ -37,7 +35,7 @@ class CrawlAllButtonTest extends TestCase
     {
         FacebookGroup::factory()->inactive()->create();
 
-        $this->actingAsAdmin()->get('/groups')->assertSee('title="Không có group active"', false);
+        $this->get('/groups')->assertSee('title="Không có group active"', false);
         $this->post('/groups/crawl-all', ['max_posts' => 50])->assertSessionHas('status', 'Không có group active nào để crawl.');
         Queue::assertNothingPushed();
     }
@@ -50,7 +48,7 @@ class CrawlAllButtonTest extends TestCase
         // One active group is already being crawled: it is skipped, not queued twice.
         CrawlRun::factory()->for($active[1], 'group')->create(['status' => CrawlRunStatus::Running]);
 
-        $this->actingAsAdmin()->post('/groups/crawl-all', ['max_posts' => 100])
+        $this->post('/groups/crawl-all', ['max_posts' => 100])
             ->assertRedirect('/groups')
             ->assertSessionHas('status', fn ($m) => str_contains($m, 'crawl 100 bài mới nhất cho 2/3 group active')
                 && str_contains($m, 'bỏ qua 1 group'));
@@ -69,17 +67,8 @@ class CrawlAllButtonTest extends TestCase
     {
         FacebookGroup::factory()->create();
 
-        $this->actingAsAdmin()->from('/groups')->post('/groups/crawl-all', ['max_posts' => 500])
+        $this->from('/groups')->post('/groups/crawl-all', ['max_posts' => 500])
             ->assertSessionHasErrors('max_posts');
-        Queue::assertNothingPushed();
-    }
-
-    public function test_guests_cannot_crawl_all(): void
-    {
-        $this->configureAdmin();
-        FacebookGroup::factory()->create();
-
-        $this->post('/groups/crawl-all', ['max_posts' => 50])->assertRedirect('/login');
         Queue::assertNothingPushed();
     }
 

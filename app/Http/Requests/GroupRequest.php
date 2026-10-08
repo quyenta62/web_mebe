@@ -17,7 +17,7 @@ class GroupRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        // Access is enforced by the admin middleware on the routes.
+        // Single-user local tool: no login (see routes/web.php).
         return true;
     }
 

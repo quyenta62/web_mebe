@@ -13,7 +13,6 @@
     @stack('styles')
 </head>
 <body class="bg-light">
-@if (session()->has('admin_username'))
     <nav class="navbar navbar-expand bg-white border-bottom mb-4">
         <div class="container">
             <span class="navbar-brand">{{ config('app.name') }}</span>
@@ -28,14 +27,8 @@
                     <a class="nav-link @if (request()->routeIs('crawl-runs.*')) active fw-semibold @endif" href="{{ route('crawl-runs.index') }}">Crawl Runs</a>
                 </li>
             </ul>
-            <form method="POST" action="{{ route('logout') }}" class="d-flex align-items-center gap-2">
-                @csrf
-                <span class="text-secondary small">{{ session('admin_username') }}</span>
-                <button type="submit" class="btn btn-sm btn-outline-secondary">Đăng xuất</button>
-            </form>
         </div>
     </nav>
-@endif
 
 <main class="container pb-5">
     @if (session('status'))

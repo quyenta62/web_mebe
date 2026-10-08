@@ -8,7 +8,7 @@ use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Collection;
 
 /**
- * Remembers (in the session) the crawls the admin started from the UI, so the next
+ * Remembers (in the session) the crawls started from the UI in this browser, so the next
  * page shows "in progress" while they run and a one-time notice once they finish.
  */
 class CrawlNotifications

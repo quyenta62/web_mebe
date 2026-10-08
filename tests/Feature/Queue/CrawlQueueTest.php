@@ -18,13 +18,11 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Queue;
 use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
-use Tests\Concerns\ActsAsAdmin;
 use Tests\Fakes\FakeFacebookCrawler;
 use Tests\TestCase;
 
 class CrawlQueueTest extends TestCase
 {
-    use ActsAsAdmin;
     use RefreshDatabase;
 
     private FakeFacebookCrawler $crawler;
@@ -90,7 +88,7 @@ class CrawlQueueTest extends TestCase
         Queue::fake();
         $group = FacebookGroup::factory()->create(['facebook_group_id' => '123456789']);
 
-        $this->actingAsAdmin()->post("/groups/{$group->id}/crawl", ['max_posts' => 100])
+        $this->post("/groups/{$group->id}/crawl", ['max_posts' => 100])
             ->assertRedirect('/groups')
             ->assertSessionHas('status', fn ($m) => str_contains($m, 'crawl 100 bài mới nhất'));
         $run = CrawlRun::sole();
@@ -102,16 +100,6 @@ class CrawlQueueTest extends TestCase
         $this->post("/groups/{$group->id}/crawl", ['max_posts' => 20])->assertSessionHas('status', fn ($m) => str_contains($m, 'đang chờ'));
         Queue::assertPushed(CrawlFacebookGroupJob::class, 1);
         $this->get('/groups')->assertSee('Đang chờ')->assertSee('disabled', false);
-    }
-
-    public function test_guests_cannot_trigger_crawls(): void
-    {
-        Queue::fake();
-        $this->configureAdmin();
-        $group = FacebookGroup::factory()->create();
-
-        $this->post("/groups/{$group->id}/crawl", ['max_posts' => 20])->assertRedirect('/login');
-        Queue::assertNothingPushed();
     }
 
     public function test_job_crawls_and_marks_the_run_successful(): void

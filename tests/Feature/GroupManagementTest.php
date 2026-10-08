@@ -7,12 +7,10 @@ use App\Models\FacebookGroup;
 use App\Models\FacebookPost;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Tests\Concerns\ActsAsAdmin;
 use Tests\TestCase;
 
 class GroupManagementTest extends TestCase
 {
-    use ActsAsAdmin;
     use RefreshDatabase;
 
     private function validInput(array $overrides = []): array
@@ -30,7 +28,7 @@ class GroupManagementTest extends TestCase
         $group = FacebookGroup::factory()->create(['name' => 'Hội mẹ bỉm sữa']);
         FacebookPost::factory()->count(3)->for($group, 'group')->create();
 
-        $this->actingAsAdmin()->get('/groups')
+        $this->get('/groups')
             ->assertOk()
             ->assertSee('Hội mẹ bỉm sữa')
             ->assertSee($group->facebook_group_id)
@@ -41,19 +39,18 @@ class GroupManagementTest extends TestCase
     {
         FacebookGroup::factory()->count(51)->create();
 
-        $this->actingAsAdmin()->get('/groups')->assertOk()->assertSee('Hiển thị 1–50 / 51 groups');
+        $this->get('/groups')->assertOk()->assertSee('Hiển thị 1–50 / 51 groups');
         $this->get('/groups?page=2')->assertOk()->assertSee('Hiển thị 51–51 / 51 groups');
     }
 
     public function test_create_form_has_csrf_token(): void
     {
-        $this->actingAsAdmin()->get('/groups/create')->assertOk()->assertSee('name="_token"', false);
+        $this->get('/groups/create')->assertOk()->assertSee('name="_token"', false);
     }
 
     public function test_admin_can_create_a_group_and_the_url_is_normalised(): void
     {
-        $this->actingAsAdmin()
-            ->post('/groups', $this->validInput(['url' => '  https://m.facebook.com/groups/123456789/posts/42/?ref=share ']))
+        $this->post('/groups', $this->validInput(['url' => '  https://m.facebook.com/groups/123456789/posts/42/?ref=share ']))
             ->assertRedirect('/groups')
             ->assertSessionHas('status');
 
@@ -67,8 +64,7 @@ class GroupManagementTest extends TestCase
 
     public function test_a_vanity_url_is_accepted(): void
     {
-        $this->actingAsAdmin()
-            ->post('/groups', $this->validInput(['url' => 'https://www.facebook.com/groups/mebimsuasaigon/', 'is_active' => '0']))
+        $this->post('/groups', $this->validInput(['url' => 'https://www.facebook.com/groups/mebimsuasaigon/', 'is_active' => '0']))
             ->assertSessionHasNoErrors();
 
         $this->assertDatabaseHas('facebook_groups', [
@@ -100,8 +96,7 @@ class GroupManagementTest extends TestCase
     #[DataProvider('invalidInputs')]
     public function test_invalid_input_is_rejected(array $overrides, string $field): void
     {
-        $this->actingAsAdmin()
-            ->from('/groups/create')
+        $this->from('/groups/create')
             ->post('/groups', $this->validInput($overrides))
             ->assertRedirect('/groups/create')
             ->assertSessionHasErrors($field);
@@ -113,7 +108,7 @@ class GroupManagementTest extends TestCase
     {
         FacebookGroup::factory()->create(['facebook_group_id' => '123456789']);
 
-        $this->actingAsAdmin()->post('/groups', $this->validInput())->assertSessionHasErrors('facebook_group_id');
+        $this->post('/groups', $this->validInput())->assertSessionHasErrors('facebook_group_id');
         $this->assertSame(1, FacebookGroup::count());
     }
 
@@ -121,13 +116,12 @@ class GroupManagementTest extends TestCase
     {
         $group = FacebookGroup::factory()->create(['facebook_group_id' => '123456789', 'is_active' => true]);
 
-        $this->actingAsAdmin()
-            ->put("/groups/{$group->id}", [
-                'facebook_group_id' => '999999999',
-                'url' => 'https://www.facebook.com/groups/me-va-be/',
-                'name' => 'Tên mới',
-                'is_active' => '0',
-            ])
+        $this->put("/groups/{$group->id}", [
+            'facebook_group_id' => '999999999',
+            'url' => 'https://www.facebook.com/groups/me-va-be/',
+            'name' => 'Tên mới',
+            'is_active' => '0',
+        ])
             ->assertRedirect('/groups');
 
         $group->refresh();
@@ -141,8 +135,7 @@ class GroupManagementTest extends TestCase
     {
         $group = FacebookGroup::factory()->create(['facebook_group_id' => '123456789']);
 
-        $this->actingAsAdmin()
-            ->put("/groups/{$group->id}", ['url' => 'https://www.facebook.com/groups/555555555/', 'is_active' => '1'])
+        $this->put("/groups/{$group->id}", ['url' => 'https://www.facebook.com/groups/555555555/', 'is_active' => '1'])
             ->assertSessionHasErrors('url');
     }
 
@@ -150,7 +143,7 @@ class GroupManagementTest extends TestCase
     {
         $group = FacebookGroup::factory()->create(['is_active' => true]);
 
-        $this->actingAsAdmin()->patch("/groups/{$group->id}/toggle")->assertRedirect('/groups');
+        $this->patch("/groups/{$group->id}/toggle")->assertRedirect('/groups');
         $this->assertFalse($group->fresh()->is_active);
 
         $this->patch("/groups/{$group->id}/toggle");
@@ -163,7 +156,7 @@ class GroupManagementTest extends TestCase
         FacebookPost::factory()->count(2)->for($group, 'group')->create();
         CrawlRun::factory()->for($group, 'group')->create();
 
-        $this->actingAsAdmin()->delete("/groups/{$group->id}")->assertRedirect('/groups');
+        $this->delete("/groups/{$group->id}")->assertRedirect('/groups');
 
         $this->assertSoftDeleted($group);
         $this->assertSame(2, FacebookPost::count());
@@ -178,7 +171,7 @@ class GroupManagementTest extends TestCase
         FacebookPost::factory()->count(2)->for($group, 'group')->create();
         $group->delete();
 
-        $this->actingAsAdmin()->post('/groups', $this->validInput(['name' => 'Mới']))
+        $this->post('/groups', $this->validInput(['name' => 'Mới']))
             ->assertRedirect('/groups')
             ->assertSessionHas('status', fn ($message) => str_contains($message, 'khôi phục'));
 
@@ -193,7 +186,7 @@ class GroupManagementTest extends TestCase
     {
         FacebookGroup::factory()->create(['name' => '<script>alert("x")</script>']);
 
-        $this->actingAsAdmin()->get('/groups')
+        $this->get('/groups')
             ->assertOk()
             ->assertDontSee('<script>alert("x")</script>', false)
             ->assertSee('&lt;script&gt;', false);
