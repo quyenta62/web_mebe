@@ -21,6 +21,11 @@ docker compose down                                    # dừng (giữ dữ li�
 Nếu `.env` chưa có: `cp .env.example .env`, điền `DB_PASSWORD`, rồi
 `docker compose run --rm app php artisan key:generate`.
 
+## Database
+
+App dùng MySQL trên Aiven (cấu hình trong `.env`, kết nối TLS có kiểm tra CA qua `MYSQL_ATTR_SSL_CA`).
+MySQL trong Docker chỉ dùng cho tests. Chi tiết: [docs/DATABASE.md](docs/DATABASE.md).
+
 ## Đăng nhập
 
 Điền tài khoản admin trong `.env` rồi mở http://localhost:8090:

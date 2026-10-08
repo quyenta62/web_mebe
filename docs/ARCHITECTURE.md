@@ -158,7 +158,7 @@ Máy dev không có PHP/MySQL và không có quyền sudo, nên dùng Docker:
 | --- | --- | --- |
 | `app` | `docker/php/Dockerfile` (php:8.4-cli + pdo_mysql, intl, zip, bcmath, pcntl, Composer, Node.js, Chromium của Playwright 1.63.0) | 8090 → `php artisan serve` |
 | `queue` | cùng image với `app` | — (`php artisan queue:work --queue=crawler,default`) |
-| `mysql` | `mysql:8.4` | 3307 → 3306 |
+| `mysql` | `mysql:8.4` | 3307 → 3306 (chỉ còn dùng cho PHPUnit; app dùng Aiven, xem `DATABASE.md`) |
 
 Container `app` chạy với UID/GID của user host (`HOST_UID`/`HOST_GID`, mặc định 1000) để file tạo ra
 không thuộc root. Thư mục `web_mebe/` được mount vào `/var/www/web`, `../crawler_mebe` vào `/var/www/crawler`. Các lệnh `docker compose` chạy từ thư mục `web_mebe/`.

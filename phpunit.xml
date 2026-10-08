@@ -24,6 +24,12 @@
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="array"/>
         <env name="DB_CONNECTION" value="mysql"/>
+        <!-- Tests always use the local Docker MySQL, never the database configured in .env. -->
+        <env name="DB_HOST" value="mysql"/>
+        <env name="DB_PORT" value="3306"/>
+        <env name="DB_USERNAME" value="crawler"/>
+        <env name="DB_PASSWORD" value="crawler_dev_password"/>
+        <env name="MYSQL_ATTR_SSL_CA" value=""/>
         <env name="DB_DATABASE" value="crawler_mebe_test"/>
         <env name="DB_URL" value=""/>
         <env name="LOG_CHANNEL" value="null"/>

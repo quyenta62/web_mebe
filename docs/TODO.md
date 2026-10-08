@@ -101,6 +101,17 @@ Trạng thái: ✅ xong · ⏳ đang chờ xác nhận · ⬜ chưa làm
       `facebook:crawl-all --posts=N`. Tests: 6 test mới (134 tổng). Chạy thật (người dùng bấm, 20 bài):
       run #9 20/20 (15 mới, 21 s), run #10 20/20 (18 mới, 10 s), chạy lần lượt
 
+## Chuyển database sang Aiven ✅ (2026-10-08)
+
+- [x] Kiểm tra Aiven MySQL 8.4.8: TLS 1.3, quyền `avnadmin`, `sql_require_primary_key=1`, `sql_mode` có
+      `ANSI_QUOTES` (Laravel đặt lại), UTC, collation `utf8mb4_0900_as_ci` cho kết quả tìm kiếm giống local
+- [x] Tạo database `crawler_mebe`, copy schema + dữ liệu (groups, posts, crawl runs, migrations); không copy
+      sessions/cache/jobs; đối chiếu số dòng + checksum CRC32 từng bảng: giống hệt (2 / 278 / 12 / 9)
+- [x] `.env` trỏ Aiven + `MYSQL_ATTR_SSL_CA`; `config/database.php` bật kiểm tra chứng chỉ khi có CA
+- [x] Tests ghim vào MySQL Docker local (`phpunit.xml`) + chốt chặn trong `tests/TestCase.php`
+- [ ] Đổi mật khẩu `avnadmin` trên Aiven (mật khẩu đã lộ trong ảnh chụp màn hình) rồi cập nhật `DB_PASSWORD`
+- [ ] Tuỳ chọn tăng tốc: `SESSION_DRIVER=file` (bớt 2 truy vấn/request); chưa làm
+
 ## Phase 2.6 — Scheduler ⏸ (hoãn theo yêu cầu 2026-10-08)
 
 - [ ] Crawl active groups theo interval cấu hình bằng env; service `scheduler`
