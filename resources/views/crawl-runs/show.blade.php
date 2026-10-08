@@ -32,13 +32,13 @@
             <dd class="col-sm-8">{{ number_format($run->posts_created) }}</dd>
 
             <dt class="col-sm-4">Tạo lúc</dt>
-            <dd class="col-sm-8">{{ \App\Support\DisplayTime::format($run->created_at, 'Y-m-d H:i:s') }}</dd>
+            <dd class="col-sm-8">{{ \App\Support\DisplayTime::format($run->created_at) }}</dd>
 
             <dt class="col-sm-4">Started</dt>
-            <dd class="col-sm-8">{{ \App\Support\DisplayTime::format($run->started_at, 'Y-m-d H:i:s') }}</dd>
+            <dd class="col-sm-8">{{ \App\Support\DisplayTime::format($run->started_at) }}</dd>
 
             <dt class="col-sm-4">Finished</dt>
-            <dd class="col-sm-8">{{ \App\Support\DisplayTime::format($run->finished_at, 'Y-m-d H:i:s') }}</dd>
+            <dd class="col-sm-8">{{ \App\Support\DisplayTime::format($run->finished_at) }}</dd>
 
             <dt class="col-sm-4">Thời gian chạy</dt>
             <dd class="col-sm-8">{{ $run->durationSeconds() === null ? '—' : $run->durationSeconds().' giây' }}</dd>

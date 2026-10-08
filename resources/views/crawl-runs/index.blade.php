@@ -30,8 +30,8 @@
                         {{ $run->group?->name ?? $run->group?->facebook_group_id ?? '—' }}
                         @if ($run->group?->trashed())<span class="badge text-bg-secondary">đã xoá</span>@endif
                     </td>
-                    <td class="text-nowrap">{{ \App\Support\DisplayTime::format($run->started_at, 'Y-m-d H:i:s') }}</td>
-                    <td class="text-nowrap">{{ \App\Support\DisplayTime::format($run->finished_at, 'Y-m-d H:i:s') }}</td>
+                    <td class="text-nowrap">{{ \App\Support\DisplayTime::format($run->started_at) }}</td>
+                    <td class="text-nowrap">{{ \App\Support\DisplayTime::format($run->finished_at) }}</td>
                     <td>@include('crawl-runs._status', ['run' => $run])</td>
                     <td class="text-end">
                         {{ number_format($run->posts_found) }}@if ($run->max_posts)<span class="text-secondary">/{{ $run->max_posts }}</span>@endif

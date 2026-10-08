@@ -58,7 +58,7 @@
                         @endif
                     </td>
                     <td class="text-end">{{ number_format($group->posts_count) }}</td>
-                    <td>
+                    <td class="text-nowrap">
                         {{ \App\Support\DisplayTime::format($group->last_crawled_at) }}
                         @php $run = $group->latestCrawlRun; @endphp
                         @if ($run?->status === \App\Enums\CrawlRunStatus::Pending)

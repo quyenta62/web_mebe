@@ -38,8 +38,8 @@ class CrawlRunsPageTest extends TestCase
         $response->assertSeeInOrder(['Group', 'Started', 'Finished', 'Status', 'Posts found', 'Posts created', 'Error'])
             ->assertSeeInOrder(['Running', "#{$new->id}", 'Failed', 'LOGIN_REQUIRED: Facebook session is expired', "#{$old->id}", 'Success'])
             ->assertSee('Hội mẹ bỉm')
-            ->assertSee('2026-10-08 08:58:00')   // started, Vietnam time
-            ->assertSee('2026-10-08 08:59:05')   // finished
+            ->assertSee('08:58:00 08/10/2026')   // started, Vietnam time
+            ->assertSee('08:59:05 08/10/2026')   // finished
             ->assertSee('43<span class="text-secondary">/50</span>', false)
             ->assertSee('Hiển thị 1–3 / 3 crawl runs');
     }
