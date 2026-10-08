@@ -144,6 +144,12 @@ Một group lỗi không ảnh hưởng group khác: mỗi group là một job r
 
 `CrawlLimits::forPosts(N)` là nơi duy nhất quy đổi số bài → `--max-posts`, `--max-scrolls`, `--timeout`.
 
+## Giao diện trên điện thoại
+
+Bootstrap, không JS. Dưới 768px: thanh menu rút gọn ("FB Monitor"); các bảng có class `table-stack`
+(`/groups`, `/crawl-runs`) hiển thị mỗi dòng thành một thẻ, nhãn lấy từ `data-label` của từng ô (CSS trong
+`layouts/app.blade.php`); menu chọn số bài mở tại chỗ và chiếm trọn một hàng. `/posts` vốn là feed nên giữ nguyên.
+
 ## Ảnh và giao diện feed
 
 Crawler xuất `image_urls` (link CDN Facebook, có chữ ký, hết hạn). Laravel chỉ lưu link `https://*.fbcdn.net`

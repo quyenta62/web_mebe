@@ -27,7 +27,7 @@ class CrawlAllButtonTest extends TestCase
 
         $this->get('/groups')
             ->assertOk()
-            ->assertSee('Crawl all (2 group active)')
+            ->assertSee('Lấy dữ liệu mới')
             ->assertSee('action="'.route('groups.crawl-all').'"', false);
     }
 

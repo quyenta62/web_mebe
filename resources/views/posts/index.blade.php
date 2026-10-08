@@ -57,7 +57,7 @@
                    class="form-control @if ($filterErrors->has('date_to')) is-invalid @endif">
         </div>
         <div class="col-md-1 d-flex gap-1">
-            <button type="submit" class="btn btn-primary">Search</button>
+            <button type="submit" class="btn btn-primary w-100">Search</button>
         </div>
     </div>
     <div class="mt-2">

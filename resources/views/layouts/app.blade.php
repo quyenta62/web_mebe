@@ -10,12 +10,32 @@
         {{-- Refresh until the crawls started from this page finish (no JavaScript needed). --}}
         <meta http-equiv="refresh" content="10">
     @endif
+    <style>
+        /* Phones: tables marked .table-stack show one card per row, labelled from data-label. */
+        @media (max-width: 767.98px) {
+            .navbar .nav-link { padding-left: .5rem; padding-right: .5rem; }
+            .table-responsive:has(> .table-stack) { overflow: visible; }
+            .table-stack { border: 0; background: transparent !important; }
+            .table-stack thead { display: none; }
+            .table-stack, .table-stack tbody, .table-stack tr, .table-stack td { display: block; width: 100%; }
+            .table-stack tr { background: #fff; border: 1px solid var(--bs-border-color); border-radius: .5rem; padding: .5rem .75rem; margin-bottom: .75rem; }
+            .table-stack td { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding: .3rem 0 !important;
+                border: 0 !important; box-shadow: none !important; text-align: right !important; white-space: normal !important;
+                max-width: none !important; overflow-wrap: anywhere; }
+            .table-stack td::before { content: attr(data-label); flex: 0 0 auto; font-weight: 600; color: var(--bs-secondary-color); text-align: left; }
+            .table-stack td.stack-actions { flex-wrap: wrap; justify-content: flex-start; gap: .4rem; padding-top: .6rem !important; }
+            .table-stack td.stack-actions::before { display: none; }
+        }
+    </style>
     @stack('styles')
 </head>
 <body class="bg-light">
     <nav class="navbar navbar-expand bg-white border-bottom mb-4">
         <div class="container">
-            <span class="navbar-brand">{{ config('app.name') }}</span>
+            <span class="navbar-brand">
+                <span class="d-none d-sm-inline">{{ config('app.name') }}</span>
+                <span class="d-sm-none">FB Monitor</span>
+            </span>
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
                     <a class="nav-link @if (request()->routeIs('groups.*')) active fw-semibold @endif" href="{{ route('groups.index') }}">Groups</a>

@@ -9,7 +9,7 @@
     <div class="alert alert-info">Chưa có lần crawl nào.</div>
 @else
     <div class="table-responsive">
-        <table class="table table-bordered table-hover bg-white align-middle">
+        <table class="table table-bordered table-hover bg-white align-middle table-stack">
             <thead class="table-light">
             <tr>
                 <th>#</th>
@@ -25,19 +25,21 @@
             <tbody>
             @foreach ($runs as $run)
                 <tr>
-                    <td><a href="{{ route('crawl-runs.show', $run) }}">#{{ $run->id }}</a></td>
-                    <td>
-                        {{ $run->group?->name ?? $run->group?->facebook_group_id ?? '—' }}
-                        @if ($run->group?->trashed())<span class="badge text-bg-secondary">đã xoá</span>@endif
+                    <td data-label="Crawl run"><a href="{{ route('crawl-runs.show', $run) }}">#{{ $run->id }}</a></td>
+                    <td data-label="Group">
+                        <span>
+                            {{ $run->group?->name ?? $run->group?->facebook_group_id ?? '—' }}
+                            @if ($run->group?->trashed())<span class="badge text-bg-secondary">đã xoá</span>@endif
+                        </span>
                     </td>
-                    <td class="text-nowrap">{{ \App\Support\DisplayTime::format($run->started_at) }}</td>
-                    <td class="text-nowrap">{{ \App\Support\DisplayTime::format($run->finished_at) }}</td>
-                    <td>@include('crawl-runs._status', ['run' => $run])</td>
-                    <td class="text-end">
-                        {{ number_format($run->posts_found) }}@if ($run->max_posts)<span class="text-secondary">/{{ $run->max_posts }}</span>@endif
+                    <td data-label="Started" class="text-nowrap">{{ \App\Support\DisplayTime::format($run->started_at) }}</td>
+                    <td data-label="Finished" class="text-nowrap">{{ \App\Support\DisplayTime::format($run->finished_at) }}</td>
+                    <td data-label="Status">@include('crawl-runs._status', ['run' => $run])</td>
+                    <td data-label="Posts found" class="text-end">
+                        <span>{{ number_format($run->posts_found) }}@if ($run->max_posts)<span class="text-secondary">/{{ $run->max_posts }}</span>@endif</span>
                     </td>
-                    <td class="text-end">{{ number_format($run->posts_created) }}</td>
-                    <td class="text-break" style="max-width: 360px">
+                    <td data-label="Posts created" class="text-end">{{ number_format($run->posts_created) }}</td>
+                    <td data-label="Error" class="text-break" style="max-width: 360px">
                         @if ($run->error_message)
                             <a href="{{ route('crawl-runs.show', $run) }}" class="text-danger text-decoration-none" title="Xem chi tiết lỗi">
                                 {{ \Illuminate\Support\Str::limit($run->error_message, 120) }}
