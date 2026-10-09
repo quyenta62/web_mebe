@@ -60,6 +60,7 @@ quyết định cần xác nhận trước Phase 2.3.
 | `image_urls` | json null | Danh sách link ảnh `https://*.fbcdn.net` (≤ 10). Link có chữ ký, hết hạn; crawl lại sẽ làm mới |
 | `post_url` | varchar(500) null | |
 | `posted_at` | timestamp null, index | Lưu UTC |
+| `checked_at` | timestamp null | Lần đầu bài được mở trên Facebook từ tool (`GET /posts/{id}/open`) → nhãn "✓ Đã check"; crawl lại không đổi cột này |
 | `created_at`, `updated_at` | timestamp | |
 
 Index:

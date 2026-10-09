@@ -69,8 +69,9 @@ class CrawlNotificationsTest extends TestCase
         $run->update(['status' => CrawlRunStatus::Running, 'started_at' => now()]);
         $this->get('/groups')->assertSee('Đang crawl')->assertSee('100 bài mới nhất');
 
-        // Other pages show the notice but do not auto-refresh.
-        $this->get('/posts')->assertSee('Đang crawl')->assertDontSee('http-equiv="refresh"', false);
+        // /posts refreshes too (new posts appear by themselves); other pages only show the notice.
+        $this->get('/posts')->assertSee('Đang crawl')->assertSee('http-equiv="refresh"', false);
+        $this->get('/crawl-runs')->assertSee('Đang crawl')->assertDontSee('http-equiv="refresh"', false);
     }
 
     public function test_success_is_announced_once(): void

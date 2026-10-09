@@ -48,7 +48,7 @@ class PostsPageTest extends TestCase
             ->assertSee('Nguyễn Văn A')
             ->assertSee('Pass lại xe đẩy cho bé')
             ->assertSee('10:30:00 07/10/2026')
-            ->assertSee('href="https://www.facebook.com/groups/1/posts/2/"', false)
+            ->assertSee('href="'.route('posts.open', FacebookPost::sole()).'"', false)
             ->assertSee('Open Facebook')
             ->assertSee('Hiển thị 1–1 / 1 posts');
     }

@@ -31,7 +31,7 @@
                 <span class="text-secondary">Chờ lâu bất thường: kiểm tra queue worker (<code>docker compose ps</code>).</span>
             @endif
         @endif
-        @if (request()->routeIs('groups.index'))
+        @if (request()->routeIs('groups.index', 'posts.index'))
             <span class="text-secondary">Trang sẽ tự cập nhật.</span>
         @else
             <span class="text-secondary">Tải lại trang để xem kết quả.</span>

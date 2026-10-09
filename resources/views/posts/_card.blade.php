@@ -4,6 +4,8 @@
     $images = $post->image_urls ?? [];
     $shown = array_slice($images, 0, 4);
     $hidden = count($images) - count($shown);
+    // The server records the check when the link opens; this only shows the label right away in this tab.
+    $markChecked = "this.closest('article').querySelector('.checked-badge').classList.remove('d-none')";
 @endphp
 <article class="card mb-3 shadow-sm">
     <div class="card-body pb-2">
@@ -19,10 +21,12 @@
                 <div class="small text-secondary">
                     {{ $post->author_name ?? 'Không rõ tác giả' }} ·
                     @if ($post->post_url)
-                        <a href="{{ $post->post_url }}" target="_blank" rel="noopener noreferrer" class="text-secondary">{{ \App\Support\DisplayTime::format($post->posted_at) }}</a>
+                        <a href="{{ route('posts.open', $post) }}" target="_blank" rel="noopener noreferrer" class="text-secondary" onclick="{{ $markChecked }}">{{ \App\Support\DisplayTime::format($post->posted_at) }}</a>
                     @else
                         {{ \App\Support\DisplayTime::format($post->posted_at) }}
                     @endif
+                    <span class="checked-badge badge text-bg-success ms-1 @if (! $post->checked_at) d-none @endif"
+                          title="{{ $post->checked_at ? 'Mở lần đầu lúc '.\App\Support\DisplayTime::format($post->checked_at) : 'Vừa mở' }}">✓ Đã check</span>
                 </div>
             </div>
         </div>
@@ -43,7 +47,8 @@
         {{-- Facebook image URLs expire; a broken image is hidden instead of showing an icon. --}}
         <div class="post-images count-{{ count($shown) }}">
             @foreach ($shown as $index => $url)
-                <a href="{{ $post->post_url ?? $url }}" target="_blank" rel="noopener noreferrer" class="post-image">
+                <a href="{{ $post->post_url ? route('posts.open', $post) : $url }}" target="_blank" rel="noopener noreferrer" class="post-image"
+                   @if ($post->post_url) onclick="{{ $markChecked }}" @endif>
                     <img src="{{ $url }}" alt="Ảnh {{ $index + 1 }} của bài viết" loading="lazy" decoding="async"
                          referrerpolicy="no-referrer" onerror="this.parentElement.style.display='none'">
                     @if ($loop->last && $hidden > 0)<span class="more">+{{ $hidden }}</span>@endif
@@ -52,10 +57,10 @@
         </div>
     @endif
 
-    <div class="card-footer bg-white d-flex justify-content-between align-items-center small">
+    <div class="card-footer bg-transparent d-flex justify-content-between align-items-center small">
         <span class="text-secondary">{{ count($images) > 0 ? count($images).' ảnh' : '' }}</span>
         @if ($post->post_url)
-            <a href="{{ $post->post_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary">Open Facebook</a>
+            <a href="{{ route('posts.open', $post) }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary" onclick="{{ $markChecked }}">Open Facebook</a>
         @endif
     </div>
 </article>

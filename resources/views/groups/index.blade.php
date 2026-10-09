@@ -36,8 +36,8 @@
     <div class="alert alert-info">Chưa có group nào. Bấm <strong>Thêm group</strong> để bắt đầu.</div>
 @else
     <div class="table-responsive">
-        <table class="table table-bordered table-hover bg-white align-middle table-stack">
-            <thead class="table-light">
+        <table class="table table-bordered table-hover align-middle table-stack">
+            <thead>
             <tr>
                 <th>Facebook Group ID</th>
                 <th>Tên</th>
@@ -108,7 +108,7 @@
         <span class="text-secondary small">
             Hiển thị {{ $groups->firstItem() }}–{{ $groups->lastItem() }} / {{ number_format($groups->total()) }} groups
         </span>
-        {{ $groups->links('pagination::bootstrap-5') }}
+        {{ $groups->onEachSide(1)->links('partials.pagination') }}
     </div>
 @endif
 @endsection

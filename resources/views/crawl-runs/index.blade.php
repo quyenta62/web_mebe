@@ -9,8 +9,8 @@
     <div class="alert alert-info">Chưa có lần crawl nào.</div>
 @else
     <div class="table-responsive">
-        <table class="table table-bordered table-hover bg-white align-middle table-stack">
-            <thead class="table-light">
+        <table class="table table-bordered table-hover align-middle table-stack">
+            <thead>
             <tr>
                 <th>#</th>
                 <th>Group</th>
@@ -58,7 +58,7 @@
         <span class="text-secondary small">
             Hiển thị {{ $runs->firstItem() }}–{{ $runs->lastItem() }} / {{ number_format($runs->total()) }} crawl runs
         </span>
-        {{ $runs->links('pagination::bootstrap-5') }}
+        {{ $runs->onEachSide(1)->links('partials.pagination') }}
     </div>
 @endif
 @endsection

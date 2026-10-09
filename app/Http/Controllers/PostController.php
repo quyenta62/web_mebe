@@ -6,6 +6,7 @@ use App\Models\FacebookGroup;
 use App\Models\FacebookPost;
 use App\Support\KeywordParser;
 use Carbon\CarbonImmutable;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
@@ -54,9 +55,24 @@ class PostController extends Controller
         return view('posts.index', [
             'posts' => $posts,
             'keywords' => $keywords,
-            'groups' => FacebookGroup::withTrashed()->orderBy('name')->get(['id', 'name', 'facebook_group_id', 'deleted_at']),
+            'groups' => FacebookGroup::withTrashed()->orderBy('name')->get(['id', 'name', 'facebook_group_id', 'is_active', 'deleted_at']),
             'filters' => $request->only(['keyword', 'group', 'date_from', 'date_to']),
             'filterErrors' => $errors,
         ]);
+    }
+
+    /**
+     * "Open Facebook": remember that the post was checked, then go to it. Only the post's own
+     * stored Facebook URL is used, so this cannot redirect anywhere else.
+     */
+    public function open(FacebookPost $post): RedirectResponse
+    {
+        $url = (string) $post->post_url;
+        abort_unless(preg_match('#^https://(www\.|m\.|web\.)?facebook\.com/#', $url) === 1, 404);
+
+        // Keep the first time; toBase() so the crawler's updated_at is not touched.
+        FacebookPost::whereKey($post->id)->whereNull('checked_at')->toBase()->update(['checked_at' => now()]);
+
+        return redirect()->away($url);
     }
 }

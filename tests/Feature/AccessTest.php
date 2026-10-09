@@ -20,7 +20,7 @@ class AccessTest extends TestCase
         $group = FacebookGroup::factory()->create();
         $run = CrawlRun::factory()->for($group, 'group')->create();
 
-        $this->get('/')->assertRedirect('/groups');
+        $this->get('/')->assertRedirect('/posts');
         foreach (['/groups', '/groups/create', "/groups/{$group->id}/edit", '/posts', '/crawl-runs', "/crawl-runs/{$run->id}"] as $path) {
             $this->get($path)->assertOk();
         }

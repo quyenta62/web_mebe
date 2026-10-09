@@ -7,19 +7,35 @@
     .feed { max-width: 680px; }
     .post-avatar { width: 40px; height: 40px; flex: 0 0 40px; }
     .post-content { white-space: pre-line; overflow-wrap: anywhere; }
-    .post-images { display: grid; gap: 2px; grid-template-columns: 1fr 1fr; background: #e9ecef; }
+    .post-images { display: grid; gap: 2px; grid-template-columns: 1fr 1fr; background: var(--bs-secondary-bg); }
     .post-images.count-1 { grid-template-columns: 1fr; }
     .post-image { position: relative; display: block; aspect-ratio: 1 / 1; overflow: hidden; }
     .post-images.count-1 .post-image { aspect-ratio: auto; max-height: 600px; }
     .post-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .post-images.count-1 .post-image img { height: auto; max-height: 600px; object-fit: contain; background: #f0f2f5; }
+    .post-images.count-1 .post-image img { height: auto; max-height: 600px; object-fit: contain; background: var(--bs-body-bg); }
     .post-image .more { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
         background: rgba(0, 0, 0, .45); color: #fff; font-size: 2rem; font-weight: 600; }
 </style>
 @endpush
 
 @section('content')
-<h1 class="h4 mb-3">Posts</h1>
+@php $activeGroupCount = $groups->filter(fn ($group) => $group->is_active && ! $group->trashed())->count(); @endphp
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h4 mb-0">Posts</h1>
+    @if ($crawlRunning->isNotEmpty())
+        <button type="button" class="btn btn-sm btn-primary" disabled>Đang tải dữ liệu…</button>
+    @elseif ($activeGroupCount === 0)
+        <button type="button" class="btn btn-sm btn-primary" disabled title="Không có group active">Tải dữ liệu mới</button>
+    @else
+        {{-- Crawls the 20 most recent posts of every active group, then comes back here with the same filters. --}}
+        <form method="POST" action="{{ route('groups.crawl-all') }}">
+            @csrf
+            <input type="hidden" name="max_posts" value="20">
+            <input type="hidden" name="return_to" value="{{ request()->getRequestUri() }}">
+            <button type="submit" class="btn btn-sm btn-primary" title="Lấy 20 bài mới nhất của {{ $activeGroupCount }} group đang active">Tải dữ liệu mới</button>
+        </form>
+    @endif
+</div>
 
 <form method="GET" action="{{ route('posts.index') }}" class="card card-body mb-3">
     <div class="row g-2 align-items-end">
@@ -65,7 +81,7 @@
         @if ($keywords)
             <span class="ms-2 small text-secondary">Đang tìm:
                 @foreach ($keywords as $keyword)
-                    <span class="badge text-bg-light border">{{ $keyword }}</span>@if (! $loop->last) <span class="text-secondary">OR</span> @endif
+                    <span class="badge bg-body-secondary text-body border">{{ $keyword }}</span>@if (! $loop->last) <span class="text-secondary">OR</span> @endif
                 @endforeach
             </span>
         @endif
@@ -80,12 +96,15 @@
 </form>
 
 <div class="feed mx-auto">
-    <div class="text-secondary small mb-2">
-        @if ($posts->total() > 0)
-            Hiển thị {{ $posts->firstItem() }}–{{ $posts->lastItem() }} / {{ number_format($posts->total()) }} posts
-        @else
-            0 posts
-        @endif
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+        <span class="text-secondary small">
+            @if ($posts->total() > 0)
+                Hiển thị {{ $posts->firstItem() }}–{{ $posts->lastItem() }} / {{ number_format($posts->total()) }} posts
+            @else
+                0 posts
+            @endif
+        </span>
+        {{ $posts->onEachSide(1)->links('partials.pagination') }}
     </div>
 
     @forelse ($posts as $post)
@@ -95,7 +114,7 @@
     @endforelse
 
     <div class="d-flex justify-content-center mt-3">
-        {{ $posts->links('pagination::bootstrap-5') }}
+        {{ $posts->onEachSide(1)->links('partials.pagination') }}
     </div>
 </div>
 @endsection

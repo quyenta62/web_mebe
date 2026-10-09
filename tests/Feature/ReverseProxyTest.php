@@ -20,7 +20,7 @@ class ReverseProxyTest extends TestCase
     public function test_redirects_keep_the_tailscale_https_address(): void
     {
         $this->withHeaders(self::FORWARDED)->get('/')
-            ->assertRedirect('https://fb-monitor.example.ts.net/groups');
+            ->assertRedirect('https://fb-monitor.example.ts.net/posts');
     }
 
     public function test_links_and_forms_use_the_tailscale_https_address(): void
@@ -34,7 +34,7 @@ class ReverseProxyTest extends TestCase
 
     public function test_direct_local_access_still_works(): void
     {
-        $this->get('/')->assertRedirect('/groups');
+        $this->get('/')->assertRedirect('/posts');
 
         $html = $this->get('/groups')->assertOk()->getContent();
         $this->assertStringContainsString('href="'.url('/posts').'"', $html);

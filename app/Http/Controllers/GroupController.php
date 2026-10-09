@@ -90,9 +90,10 @@ class GroupController extends Controller
     public function crawlAll(Request $request, CrawlDispatcher $dispatcher): RedirectResponse
     {
         $maxPosts = $this->validatedPostCount($request);
+        $back = $this->returnUrl($request);
         $groups = FacebookGroup::active()->orderBy('id')->get();
         if ($groups->isEmpty()) {
-            return redirect()->route('groups.index')->with('status', 'Không có group active nào để crawl.');
+            return redirect($back)->with('status', 'Không có group active nào để crawl.');
         }
 
         $queued = 0;
@@ -109,7 +110,25 @@ class GroupController extends Controller
             .($skipped > 0 ? " (bỏ qua {$skipped} group đang chờ/đang crawl)" : '')
             .'. Các group chạy lần lượt; mỗi group có thông báo khi xong.';
 
-        return redirect()->route('groups.index')->with('status', $message);
+        return redirect($back)->with('status', $message);
+    }
+
+    /**
+     * Where to go after "crawl all": back to /posts (with its filters) when the button
+     * there was used, otherwise /groups. Only a relative /posts path is accepted, so
+     * the field cannot redirect anywhere else.
+     */
+    private function returnUrl(Request $request): string
+    {
+        $returnTo = $request->input('return_to');
+        if (is_string($returnTo)) {
+            $parts = parse_url($returnTo);
+            if ($parts !== false && ($parts['path'] ?? null) === '/posts' && ! isset($parts['host']) && ! isset($parts['scheme'])) {
+                return '/posts'.(isset($parts['query']) ? '?'.$parts['query'] : '');
+            }
+        }
+
+        return route('groups.index');
     }
 
     private function validatedPostCount(Request $request): int

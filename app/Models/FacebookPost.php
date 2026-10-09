@@ -29,6 +29,7 @@ class FacebookPost extends Model
     {
         return [
             'posted_at' => 'datetime',
+            'checked_at' => 'datetime',
             'image_urls' => 'array',
         ];
     }
